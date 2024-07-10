@@ -1,9 +1,9 @@
 #include <iostream>
-#include <Logger.hpp>
+#include <Logger/Logger.hpp>
 
 int main()
 {
     CLogger log;
-    log.Log("heey cmake");
+    log.Log("dupa");
     return 0;
 }

@@ -1,8 +1,7 @@
 #include "Logger.hpp"
 
-
-
-void CLogger::Log(const std::string & msg)
+__attribute__((visibility("default")))
+void CLogger::Log(const char* msg)
 {
     printf("Logged: %s", msg);
 }

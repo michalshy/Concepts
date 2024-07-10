@@ -1,23 +1,16 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.30)
 
 project(
   Concepts
   VERSION 1.0
   LANGUAGES C CXX)
 
-
-
-include_directories(src
-src/Modules
-src/Modules/Logger)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
 
 set(Logger_DIR src)
-find_package(Logger REQUIRED)
+find_package(logger REQUIRED PATHS src/build)
 
 include(CTest)
 
-add_subdirectory(src)
-
 add_executable(Concepts main.cpp)
-target_link_libraries(Concepts Logger)
+target_link_libraries(Concepts logger)

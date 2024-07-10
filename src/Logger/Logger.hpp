@@ -2,12 +2,14 @@
 #define __LOGGER_HPP__
 
 #include <string>
+#include <logger_export.h>
 
-class CLogger
+class LOGGER_EXPORT CLogger
 {
 
 public:
-    void Log(const std::string & msg);
+    
+    void Log(const char* msg);
 
 };
 
