@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.14)
 
-project(
-  Roadmap
-  VERSION 1.0
-  LANGUAGES C CXX)
+project(Roadmap)
 
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_executable(Roadmap src/main.cpp)
+
 
 include(FetchContent)
 FetchContent_Declare(
@@ -20,9 +20,14 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-
-add_executable(Roadmap src/main.cpp hello_test.cc) 
-target_link_libraries(Roadmap GTest::gtest_main)
+add_executable(
+  hello_test
+  hello_test.cc
+)
+target_link_libraries(
+  hello_test
+  GTest::gtest_main
+)
 
 include(GoogleTest)
-gtest_discover_tests(Roadmap hello_test)
+gtest_discover_tests(hello_test)
