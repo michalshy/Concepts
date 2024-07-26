@@ -6,7 +6,9 @@ project(Roadmap)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(Roadmap src/main.cpp)
+include_directories(src)
+
+add_executable(Roadmap src/main.cpp src/Test.cpp)
 
 
 include(FetchContent)
@@ -22,7 +24,7 @@ enable_testing()
 
 add_executable(
   hello_test
-  hello_test.cc
+  testing/hello_test.cc
 )
 target_link_libraries(
   hello_test
