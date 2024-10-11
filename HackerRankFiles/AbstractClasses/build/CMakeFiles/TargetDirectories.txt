@@ -1,0 +1,3 @@
+C:/Users/Michin/Desktop/Zajawki/projekty/Concepts/HackerRankFiles/AbstractClasses/build/CMakeFiles/Hackerrank.dir
+C:/Users/Michin/Desktop/Zajawki/projekty/Concepts/HackerRankFiles/AbstractClasses/build/CMakeFiles/edit_cache.dir
+C:/Users/Michin/Desktop/Zajawki/projekty/Concepts/HackerRankFiles/AbstractClasses/build/CMakeFiles/rebuild_cache.dir
