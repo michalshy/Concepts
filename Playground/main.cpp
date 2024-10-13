@@ -1,7 +1,25 @@
 #include <iostream>
 #include "MemoryAllocation/StaticDynamicProblems.hpp"
+#include "Variables/Variables.hpp"
+
+struct Configuration
+{
+    bool Variables = 1;
+    bool MemoryAllocation = 1;
+};
 
 int main()
 {
-    std::cout << "nie mam 11 lat doswiadczenia nie to co " << FunctionToTest() << std::endl;
+    Configuration c;
+
+    if(c.Variables)
+        VarMain();
+
+    if(c.MemoryAllocation)
+    {
+        Holder h;
+        h.AddByPointer();
+        std::cout<<h.GetSize()<<std::endl;
+        h.PrintValues();
+    }
 }

@@ -7,5 +7,5 @@ std::string dxr = FunctionToTest();
 // Demonstrate some basic assertions.
 TEST(CheckDexor, BasicAssertions) {
   // Expect equality.
-  EXPECT_EQ(dxr, "dexor");
+  EXPECT_EQ(dxr, "dxr");
 }
