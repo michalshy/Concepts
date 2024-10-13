@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(EXECUTABLES
 "MemoryAllocation/StaticDynamicProblems.hpp"
-"Variables/Variables.hpp")
+"Variables/Variables.hpp"
+"Containers/Containers.hpp")
 
 add_executable(Playground
     main.cpp

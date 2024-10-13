@@ -81,7 +81,10 @@ void Constants()
     std::cout<<"---END CONSTS---"<<std::endl;
 }
 
-
+/**
+ * Initialize your variables
+ * Underflow (23u - 43u)
+ */
 
 void VarMain()
 {
