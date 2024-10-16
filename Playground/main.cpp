@@ -13,7 +13,6 @@ struct Configuration
 int main()
 {
     Configuration c;
-
     if(c.Variables)
         VarMain();
     if(c.MemoryAllocation)
