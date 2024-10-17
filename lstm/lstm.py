@@ -18,9 +18,11 @@ df = df[df["Automatic Mode active"] == True]
 df = df[df["Current segment"] == 10.0]
 #UPPER TO TEST
 df_for_training = df[["Heading", "Battery cell voltage", "X-coordinate", "Y-coordinate"]]
+df_for_training = df_for_training.astype(float)
+
 print(df_for_training)
 
-scaler = StandardScaler()
+scaler = MinMaxScaler(feature_range=(0, 1))
 scaler = scaler.fit(df_for_training)
 dfScaled = scaler.transform(df_for_training)
 
@@ -32,7 +34,7 @@ n_past = 15
 
 for i in range(n_past, len(dfScaled) - n_future + 1):
     trainX.append(dfScaled[i - n_past:i, 0:df_for_training.shape[1]])
-    trainY.append(dfScaled[i + n_future - 1:i + n_future, 1])
+    trainY.append(dfScaled[i + n_future - 1:i + n_future, 2])
 
 trainX, trainY = np.array(trainX), np.array(trainY)
 
@@ -40,8 +42,9 @@ print('trainX shape == {}.'.format(trainX.shape))
 print('trainY shape == {}.'.format(trainY.shape))
 
 model = Sequential()
-model.add(LSTM(64, activation='relu', input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=True))
-model.add(LSTM(32, activation='relu', return_sequences=False))
+model.add(LSTM(units=64, input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=True))
+model.add(LSTM(64, return_sequences=True))
+model.add(LSTM(32, return_sequences=False))
 model.add(Dropout(0.2))
 model.add(Dense(trainY.shape[1]))
 
@@ -50,20 +53,20 @@ model.summary()
 
 
 # fit the model
-history = model.fit(trainX, trainY, epochs=20, batch_size=16, validation_split=0.1, verbose=1)
+history = model.fit(trainX, trainY, epochs=10, batch_size=16, validation_split=0.1, verbose=1)
 
 plt.plot(history.history['loss'], label='Training loss')
 plt.plot(history.history['val_loss'], label='Validation loss')
 plt.legend()
 plt.show()
 
-prediction = model.predict(trainX[0:10])
+prediction = model.predict(trainX[100:120])
 
 print(prediction)
 
 prediction_copies = np.repeat(prediction, df_for_training.shape[1], axis=-1)
-y_pred_future = scaler.inverse_transform(prediction_copies)[:,0]
+y_pred_future = scaler.inverse_transform(prediction_copies)[::,0]
 
-print(trainX)
+print(df_for_training[100:120])
 
 print(y_pred_future)
