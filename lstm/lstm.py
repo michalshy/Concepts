@@ -1,72 +1,64 @@
+from pygame import Surface
+import heapq
+import queue
 import tensorflow as tf
-import os
-import pandas as pd
+import keras
+from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from matplotlib import pyplot as plt
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout, InputLayer
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-
-df = pd.read_csv('csvData.csv')
-df = df[df["Automatic Mode active"] == True]
-#TO TEST
-# df.index = df['Timestamp']
-# print(df)
-df = df[df["Current segment"] == 10.0]
-#UPPER TO TEST
-df_for_training = df[["Heading", "Battery cell voltage", "X-coordinate", "Y-coordinate"]]
-df_for_training = df_for_training.astype(float)
-
-print(df_for_training)
-
-scaler = MinMaxScaler(feature_range=(0, 1))
-scaler = scaler.fit(df_for_training)
-dfScaled = scaler.transform(df_for_training)
-
-trainX = []
-trainY = []
-
-n_future = 1
-n_past = 15
-
-for i in range(n_past, len(dfScaled) - n_future + 1):
-    trainX.append(dfScaled[i - n_past:i, 0:df_for_training.shape[1]])
-    trainY.append(dfScaled[i + n_future - 1:i + n_future, 2])
-
-trainX, trainY = np.array(trainX), np.array(trainY)
-
-print('trainX shape == {}.'.format(trainX.shape))
-print('trainY shape == {}.'.format(trainY.shape))
-
-model = Sequential()
-model.add(LSTM(units=64, input_shape=(trainX.shape[1], trainX.shape[2]), return_sequences=True))
-model.add(LSTM(64, return_sequences=True))
-model.add(LSTM(32, return_sequences=False))
-model.add(Dropout(0.2))
-model.add(Dense(trainY.shape[1]))
-
-model.compile(optimizer='adam', loss='mse')
-model.summary()
+import pandas as pd
+import math
+from enum import Enum 
+import matplotlib.pyplot as plt
 
 
-# fit the model
-history = model.fit(trainX, trainY, epochs=10, batch_size=16, validation_split=0.1, verbose=1)
+def create_dataset(dataset):
+    data = []
+    temp = []
+    for j in reversed(range(10)):
+        a = dataset[len(dataset) - j - 1]
+        temp.append(a)
+    data.append(temp)
+    return np.array(data)
 
-plt.plot(history.history['loss'], label='Training loss')
-plt.plot(history.history['val_loss'], label='Validation loss')
-plt.legend()
+_data = []
+_path = []
+finData =[]
+model: keras.Model = keras.models.load_model(r'NAVO.keras')
+df = pd.read_csv(r'agv.pkl', low_memory=False)
+df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment']]
+df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
+df['Y-coordinate'] = pd.to_numeric(df['Y-coordinate'], errors='coerce')
+df['Current segment'] = pd.to_numeric(df['Current segment'], errors='coerce')
+df['Heading'] = pd.to_numeric(df['Heading'], errors='coerce')
+df = df.dropna()
+df = df[df['Current segment'] == 59.0]
+_scaler = MinMaxScaler()
+df_scaled = df.copy()
+df_scaled[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']] = _scaler.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']])
+to_drive = df_scaled.values.tolist()
+for i in range(len(to_drive)):
+    _data.append(to_drive[i])
+
+
+# df.plot(kind = 'scatter', x = 'X-coordinate', y = 'Y-coordinate')
+# plt.show()
+# dataNP = np.array(_data)
+# plt.scatter(dataNP[:, 0], dataNP[:, 1])
+# plt.show()
+
+for i in range(100):
+    finData.append(to_drive[i])
+
+
+for i in range(1000):
+    df2 = pd.DataFrame(finData, columns=['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading'])
+    df2 = df2.values
+    df2 = df2.astype('float32')
+    toPredict = create_dataset(df2)
+    predicted = model.predict(toPredict)
+    finData.append(predicted[0])
+
+finNp = np.array(finData)
+plt.scatter(finNp[:, 0], finNp[:, 1])
 plt.show()
 
-prediction = model.predict(trainX[100:120])
-
-print(prediction)
-
-prediction_copies = np.repeat(prediction, df_for_training.shape[1], axis=-1)
-y_pred_future = scaler.inverse_transform(prediction_copies)[::,0]
-
-print(df_for_training[100:120])
-
-print(y_pred_future)
