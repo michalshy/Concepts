@@ -31,7 +31,7 @@ df['Y-coordinate'] = pd.to_numeric(df['Y-coordinate'], errors='coerce')
 df['Current segment'] = pd.to_numeric(df['Current segment'], errors='coerce')
 df['Heading'] = pd.to_numeric(df['Heading'], errors='coerce')
 df = df.dropna()
-df = df[df['Current segment'] == 59.0]
+#df = df[df['Current segment'] == 59.0]
 _scaler = MinMaxScaler()
 df_scaled = df.copy()
 df_scaled[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']] = _scaler.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']])
@@ -42,15 +42,15 @@ for i in range(len(to_drive)):
 
 # df.plot(kind = 'scatter', x = 'X-coordinate', y = 'Y-coordinate')
 # plt.show()
-# dataNP = np.array(_data)
-# plt.scatter(dataNP[:, 0], dataNP[:, 1])
-# plt.show()
+dataNP = np.array(_data)
+plt.scatter(dataNP[:, 0], dataNP[:, 1])
+plt.show()
 
-for i in range(100):
+for i in range(300):
     finData.append(to_drive[i])
 
 
-for i in range(1000):
+for i in range(300):
     df2 = pd.DataFrame(finData, columns=['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading'])
     df2 = df2.values
     df2 = df2.astype('float32')
