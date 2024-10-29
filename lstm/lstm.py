@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 def create_dataset(dataset):
     data = []
     temp = []
-    for j in reversed(range(10)):
+    for j in range(3):
         a = dataset[len(dataset) - j - 1]
         temp.append(a)
     data.append(temp)
@@ -23,18 +23,17 @@ def create_dataset(dataset):
 _data = []
 _path = []
 finData =[]
-model: keras.Model = keras.models.load_model(r'NAVO.keras')
+model: keras.Model = keras.models.load_model(r'jakub.keras')
 df = pd.read_csv(r'agv.pkl', low_memory=False)
-df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment']]
+df = df[['X-coordinate', 'Y-coordinate', 'Heading']]
 df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
 df['Y-coordinate'] = pd.to_numeric(df['Y-coordinate'], errors='coerce')
-df['Current segment'] = pd.to_numeric(df['Current segment'], errors='coerce')
 df['Heading'] = pd.to_numeric(df['Heading'], errors='coerce')
 df = df.dropna()
 #df = df[df['Current segment'] == 59.0]
 _scaler = MinMaxScaler()
 df_scaled = df.copy()
-df_scaled[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']] = _scaler.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading']])
+df_scaled[['X-coordinate', 'Y-coordinate', 'Heading']] = _scaler.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Heading']])
 to_drive = df_scaled.values.tolist()
 for i in range(len(to_drive)):
     _data.append(to_drive[i])
@@ -42,16 +41,23 @@ for i in range(len(to_drive)):
 
 # df.plot(kind = 'scatter', x = 'X-coordinate', y = 'Y-coordinate')
 # plt.show()
-dataNP = np.array(_data)
-plt.scatter(dataNP[:, 0], dataNP[:, 1])
+# dataNP = np.array(_data)
+# plt.scatter(dataNP[:, 0], dataNP[:, 1])
+# plt.show()
+
+for i in range(40):
+    finData.append(to_drive[130 + i])
+finNp = np.array(finData)
+plt.plot(finNp[:, 0], finNp[:, 1])
 plt.show()
 
-for i in range(300):
-    finData.append(to_drive[i])
+finData.clear()
 
+for i in range(3):
+    finData.append(to_drive[130 + i])
 
-for i in range(300):
-    df2 = pd.DataFrame(finData, columns=['X-coordinate', 'Y-coordinate', 'Current segment', 'Heading'])
+for i in range(36):
+    df2 = pd.DataFrame(finData, columns=['X-coordinate', 'Y-coordinate', 'Heading'])
     df2 = df2.values
     df2 = df2.astype('float32')
     toPredict = create_dataset(df2)
@@ -59,6 +65,6 @@ for i in range(300):
     finData.append(predicted[0])
 
 finNp = np.array(finData)
-plt.scatter(finNp[:, 0], finNp[:, 1])
+plt.plot(finNp[:, 0], finNp[:, 1])
 plt.show()
 
