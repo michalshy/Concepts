@@ -5,13 +5,15 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.layers import LSTM, Dense, Dropout
 from sklearn.preprocessing import MinMaxScaler
 
 if __name__ == '__main__':
 
     # Load DataFrame
-    df = pd.read_csv('agv.pkl', low_memory=False)
+    df = pd.read_csv('agv.pkl')
+    df = df.head(5000)
+    df = df[df['Speed'] != 0]
 
     df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment']]
 
@@ -23,8 +25,7 @@ if __name__ == '__main__':
 
     df['Next segment'] = df['Current segment'].shift(-1, fill_value=0.0)
 
-    df = df.dropna()
-
+    
     # Normalize the data for features (first scaler)
     scaler_features = MinMaxScaler()
     df_scaled = df.copy()
@@ -44,7 +45,7 @@ if __name__ == '__main__':
             y.append(df_target[i+n_steps])
         return np.array(X), np.array(y)
 
-    n_steps = 20
+    n_steps = 30
     X, y = create_sequences(df_scaled[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']],
                             df_target_scaled, n_steps)
 
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     model.compile(optimizer=optimizer, loss='mse')
 
     # Train the model
-    model.fit(X_train, y_train, epochs=15, batch_size=32, validation_data=(X_val, y_val), verbose=1)
+    model.fit(X, y, epochs=1000, batch_size=32, verbose=1)
 
     model.save("fatal.keras")
 
