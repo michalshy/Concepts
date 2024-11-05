@@ -12,11 +12,14 @@ if __name__ == '__main__':
 
     # Load DataFrame
     df = pd.read_csv('agv.pkl')
-    df = df.head(5000)
+    df = df.head(200)
     df = df[df['Speed'] != 0]
+
 
     df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment']]
 
+    df.plot(kind = 'scatter', x = 'X-coordinate', y = 'Y-coordinate')
+    plt.show()
     # Handle missing or invalid values
     df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
     df['Y-coordinate'] = pd.to_numeric(df['Y-coordinate'], errors='coerce')
@@ -45,7 +48,7 @@ if __name__ == '__main__':
             y.append(df_target[i+n_steps])
         return np.array(X), np.array(y)
 
-    n_steps = 30
+    n_steps = 15
     X, y = create_sequences(df_scaled[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']],
                             df_target_scaled, n_steps)
 

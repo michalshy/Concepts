@@ -9,8 +9,8 @@ import math
 from enum import Enum 
 import matplotlib.pyplot as plt
 
-n_steps = 30
-steps = 30
+n_steps = 15
+steps = 15
 
 def create_dataset(dataset):
     data = []
@@ -25,7 +25,7 @@ _data = []
 finData =[]
 model: keras.Model = keras.models.load_model(r'fatal.keras')
 df = pd.read_csv(r'agv.pkl', low_memory=False)
-df = df.head(5000)
+df = df.head(200)
 df = df[df['Speed'] != 0]
 
 # df = pd.read_csv(r'chosen.csv', low_memory=False)
@@ -65,7 +65,7 @@ finNp = _scaler.inverse_transform(np.array(finData))
 plt.plot(finNp[:, 0], finNp[:, 1])
 plt.show()
 steps += 1
-for i in range(50):
+for i in range(100):
     df2 = pd.DataFrame(finData, columns=['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment'])
     df2 = df2.values
     toPredict = create_dataset(df2)
