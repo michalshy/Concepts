@@ -12,14 +12,11 @@ if __name__ == '__main__':
 
     # Load DataFrame
     df = pd.read_csv('agv.pkl')
-    df = df.head(200)
+    df = df.head(400)
     df = df[df['Speed'] != 0]
-
 
     df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment']]
 
-    df.plot(kind = 'scatter', x = 'X-coordinate', y = 'Y-coordinate')
-    plt.show()
     # Handle missing or invalid values
     df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
     df['Y-coordinate'] = pd.to_numeric(df['Y-coordinate'], errors='coerce')
@@ -27,7 +24,6 @@ if __name__ == '__main__':
     df['Current segment'] = pd.to_numeric(df['Current segment'], errors='coerce')
 
     df['Next segment'] = df['Current segment'].shift(-1, fill_value=0.0)
-
     
     # Normalize the data for features (first scaler)
     scaler_features = MinMaxScaler()
@@ -39,7 +35,6 @@ if __name__ == '__main__':
     # Normalize the target data (second scaler)
     scaler_target = MinMaxScaler()
     df_target_scaled = scaler_target.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']])
-
     # Create sequences (using df_scaled for features and df_target_scaled for targets)
     def create_sequences(df_features, df_target, n_steps):
         X, y = [], []
@@ -48,7 +43,7 @@ if __name__ == '__main__':
             y.append(df_target[i+n_steps])
         return np.array(X), np.array(y)
 
-    n_steps = 15
+    n_steps = 50
     X, y = create_sequences(df_scaled[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']],
                             df_target_scaled, n_steps)
 
@@ -70,7 +65,7 @@ if __name__ == '__main__':
     model.add(Dense(5))  # Output layer with 3 features (Battery cell voltage, X-coordinate, Y-coordinate)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, clipvalue=1.0)  # Add gradient clipping
-    model.compile(optimizer=optimizer, loss='mse')
+    model.compile(optimizer=optimizer, loss='mae')
 
     # Train the model
     model.fit(X, y, epochs=1000, batch_size=32, verbose=1)
