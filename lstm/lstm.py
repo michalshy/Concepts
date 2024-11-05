@@ -12,29 +12,31 @@ if __name__ == '__main__':
 
     # Load DataFrame
     df = pd.read_csv('agv.pkl')
-    df = df.head(400)
+    df = df.head(10000)
     df = df[df['Speed'] != 0]
 
-    df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment']]
+    df = df[['X-coordinate', 'Y-coordinate', 'Heading', 'Going to ID', 'Current segment']]
 
     # Handle missing or invalid values
     df['X-coordinate'] = pd.to_numeric(df['X-coordinate'], errors='coerce')
     df['Y-coordinate'] = pd.to_numeric(df['Y-coordinate'], errors='coerce')
     df['Heading'] = pd.to_numeric(df['Heading'], errors='coerce')
+    df['Going to ID'] = pd.to_numeric(df['Heading'], errors='coerce')
+    df['Going to ID'] = df['Going to ID'] * 100
     df['Current segment'] = pd.to_numeric(df['Current segment'], errors='coerce')
 
     df['Next segment'] = df['Current segment'].shift(-1, fill_value=0.0)
-    
+
     # Normalize the data for features (first scaler)
     scaler_features = MinMaxScaler()
     df_scaled = df.copy()
-    df_scaled[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']] = scaler_features.fit_transform(
-        df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']]
+    df_scaled[['X-coordinate', 'Y-coordinate', 'Heading', 'Going to ID', 'Current segment', 'Next segment']] = scaler_features.fit_transform(
+        df[['X-coordinate', 'Y-coordinate', 'Heading', 'Going to ID', 'Current segment', 'Next segment']]
     )
 
     # Normalize the target data (second scaler)
     scaler_target = MinMaxScaler()
-    df_target_scaled = scaler_target.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']])
+    df_target_scaled = scaler_target.fit_transform(df[['X-coordinate', 'Y-coordinate', 'Heading', 'Going to ID', 'Current segment', 'Next segment']])
     # Create sequences (using df_scaled for features and df_target_scaled for targets)
     def create_sequences(df_features, df_target, n_steps):
         X, y = [], []
@@ -44,7 +46,7 @@ if __name__ == '__main__':
         return np.array(X), np.array(y)
 
     n_steps = 50
-    X, y = create_sequences(df_scaled[['X-coordinate', 'Y-coordinate', 'Heading', 'Current segment', 'Next segment']],
+    X, y = create_sequences(df_scaled[['X-coordinate', 'Y-coordinate', 'Heading', 'Going to ID', 'Current segment', 'Next segment']],
                             df_target_scaled, n_steps)
 
     # Splitting data into training, validation, and test sets
@@ -59,16 +61,16 @@ if __name__ == '__main__':
 
     # Build the LSTM model
     model = Sequential()
-    model.add(LSTM(50, input_shape=(n_steps, 5)))
+    model.add(LSTM(50, input_shape=(n_steps, 6)))
     model.add(Dense(32, activation='relu'))
     model.add(Dense(32, activation='relu'))
-    model.add(Dense(5))  # Output layer with 3 features (Battery cell voltage, X-coordinate, Y-coordinate)
+    model.add(Dense(6))  # Output layer with 3 features (Battery cell voltage, X-coordinate, Y-coordinate)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, clipvalue=1.0)  # Add gradient clipping
     model.compile(optimizer=optimizer, loss='mae')
 
     # Train the model
-    model.fit(X, y, epochs=1000, batch_size=32, verbose=1)
+    model.fit(X, y, epochs=500, batch_size=32, verbose=1)
 
     model.save("fatal.keras")
 
